@@ -1,18 +1,22 @@
 import fetch from 'node-fetch';
+import fs from 'fs';
+
+const LOG_FILE = '/path/to/noona-slot-master.log';
 
 const CONFIG = {
-    API_KEY: "API_KEY",
-    COMPANY_ID: "COMPANY_ID",
-    EMPLOYEE_ID: "EMPLOYEE_ID",
-    EVENT_TYPE_ID: "EVENT_TYPE_ID",
-    START_DATE: "2025-08-16",
-    DAY_OF_WEEK: 6,
-    DESIRED_TIME: '11:00',
+    API_KEY: "your_api_key",
+    COMPANY_ID: "company_id",
+    EMPLOYEE_ID: "employee_id",
+    EVENT_TYPE_ID: "event_type_id",
+    START_DATE: "YYYY-MM-DD",
+    DAY_OF_WEEK: 0 - 6,
+    DESIRED_TIME: "HH:MM",
+    MONTHS_AHEAD: 3,
     DAYS_BETWEEN_BOOKINGS: 14,
     CUSTOMER: {
-        name: "name",
-        email: "email",
-        phone: { code: "351", number: "91111111" }
+        name: "Your Name",
+        email: "your@email.com",
+        phone: {code: "country_code", number: "phone_number"}
     }
 };
 
@@ -20,6 +24,20 @@ const HEADERS = {
     "Authorization": `Bearer ${CONFIG.API_KEY}`,
     "Content-Type": "application/json"
 };
+
+function log(message, isError = false) {
+    const now = new Date();
+    const timestamp = now.toLocaleString('en-GB', {
+        timeZone: 'Europe/Lisbon',
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false
+    }).replace(',', '');
+
+    const line = `[${timestamp}] ${message}\n`;
+    fs.appendFileSync(LOG_FILE, line);
+    if (!isError) process.stdout.write(line);
+}
 
 async function fetchTimeSlots() {
     const today = new Date().toISOString().split('T')[0];
@@ -29,7 +47,7 @@ async function fetchTimeSlots() {
         `employee_id=${CONFIG.EMPLOYEE_ID}&event_type_ids[]=${CONFIG.EVENT_TYPE_ID}&` +
         `start_date=${today}&end_date=${endDate.toISOString().split('T')[0]}`;
 
-    const res = await fetch(url, { headers: HEADERS });
+    const res = await fetch(url, {headers: HEADERS});
     return res.ok ? res.json() : Promise.reject(`API error: ${res.status}`);
 }
 
@@ -118,7 +136,7 @@ async function bookSlot(slot) {
 
         return true;
     } catch (err) {
-        console.error(`Booking error for ${slot.date}:`, err.message);
+        log(`Booking error for ${slot.date}:`, err.message);
         return false;
     }
 }
@@ -130,16 +148,16 @@ async function bookSlot(slot) {
         const availableDays = findAvailableDays(slots);
 
         if (availableDays.length === 0) {
-            console.log('No available days found');
+            log('No available days found');
             return;
         }
 
         for (const slot of availableDays) {
-            console.log(`Attempting to book ${slot.date} at ${slot.time}`);
+            log(`Attempting to book ${slot.date} at ${slot.time}`);
             const success = await bookSlot(slot);
-            console.log(`${slot.date} ${slot.time}: ${success ? 'SUCCESS' : 'FAILED'}`);
+            log(`${slot.date} ${slot.time}: ${success ? 'SUCCESS' : 'FAILED'}`);
         }
     } catch (err) {
-        console.error('Fatal error:', err.message);
+        log('Fatal error:', err.message);
     }
 })();
