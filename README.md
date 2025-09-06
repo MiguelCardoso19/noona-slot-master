@@ -1,6 +1,15 @@
 ## Overview
 NoonaSlotMaster is an automated booking assistant for the Noona platform. It finds available appointment slots based on your preferences and books them for you. You can choose a specific company, service, employee, time, and spacing between bookings. The script works continuously, checking as many months ahead as you configure, so you never miss a slot.
 
+## Table of Contents
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Why This Matters](#why-this-matters)
+- [Configuration](#configuration)
+- [AWS Serverless Architecture](#aws-serverless-architecture)
+  - [Architecture Components](#architecture-components)
+  - [Why This Architecture?](#why-this-architecture)
+  - [Estimated Monthly Cost](#estimated-monthly-cost)
 
 ## Key Features
 
@@ -80,30 +89,43 @@ Details of the customer for whom the appointment is booked:
   - **code** – Country code (e.g., "351" for PT)  
   - **number** – Phone number without the country code
 
+## AWS Serverless Architecture
 
-## Requirements
-- Node.js
-- node-fetch package (`npm install node-fetch`)
-- Noona API Key (https://api.noona.is/docs/)
+I use a simple yet powerful AWS serverless architecture that runs automatically every day, taking full advantage of AWS's free tier offerings:
 
 
-## BONUS: Guaranteed Booking
-Run automatically every day at midnight to always guarantee the slot.
+### Architecture Components
 
-### Linux/macOS (cron)
-```bash
-# Make script executable
-chmod +x noona-slot-master.js
+1. **Amazon EventBridge**
+   - Serverless scheduler that triggers the function daily at midnight UTC
+   - Uses cron expression: `cron(0 0 * * ? *)` (runs at 00:00 UTC every day)
+   - **Cost**: First 14 events per day are free, then $1 per million events
 
-# Add to crontab (runs at 00:00 daily)
-(crontab -l 2>/dev/null; echo "0 0 * * * /usr/bin/node /full/path/to/noona-slot-master.js >> /path/to/logs.txt 2>&1") | crontab -
-```
+2. **AWS Lambda**
+   - Runs the NoonaSlotMaster script in a serverless environment
+   - **Cost**: Free tier includes 1M requests and 400,000 GB-seconds of compute time per month
 
-### Windows (Task Scheduler)
+3. **Noona API**
+   - External service that provides availability data and handles bookings
+   - Called by the Lambda function to find and reserve slots
 
-1. Open Task Scheduler  
-2. Create new task:  
-   - Trigger: Daily at 12:00 AM  
-   - Action: Start program  
-   - Program: `node.exe`  
-   - Arguments: `"C:\path\to\noona-slot-master.js"`
+4. **Amazon CloudWatch** 
+   - Provides logging and monitoring for the Lambda function
+   - Tracks execution history, performance metrics, and errors
+   - **Cost**: Free tier includes 5GB of log data ingestion, 5GB of log data archival, and 7 days of log data retention
+
+### Why This Architecture?
+
+- **100% Serverless**: No servers to manage, patch, or maintain
+- **Cost Effective**: Runs entirely within AWS Free Tier limits 
+- **Highly Available**: Built on AWS's global infrastructure with 99.9% uptime
+- **Automatically Scalable**: Handles any load without configuration changes (not needed in this case)
+- **Fully Managed**: AWS handles all infrastructure management
+- **Secure**: Built-in security with IAM roles and encryption
+
+### Estimated Monthly Cost
+
+- **EventBridge**: Free (1 events/day × 30 days = 30 events, well under 420 free limit)
+- **Lambda**: Free (1 execution/day × 30 days = 30 executions, well under 1M free requests)
+- **CloudWatch**: Free (minimal log storage required)
+- **Total**: $0.00 (within free tier limits)
