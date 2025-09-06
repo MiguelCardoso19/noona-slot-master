@@ -1,7 +1,4 @@
 import fetch from 'node-fetch';
-import fs from 'fs';
-
-const LOG_FILE = '/path/to/noona-slot-master.log';
 
 const CONFIG = {
     API_KEY: "your_api_key",
@@ -24,20 +21,6 @@ const HEADERS = {
     "Authorization": `Bearer ${CONFIG.API_KEY}`,
     "Content-Type": "application/json"
 };
-
-function log(message, isError = false) {
-    const now = new Date();
-    const timestamp = now.toLocaleString('en-GB', {
-        timeZone: 'Europe/Lisbon',
-        year: 'numeric', month: '2-digit', day: '2-digit',
-        hour: '2-digit', minute: '2-digit', second: '2-digit',
-        hour12: false
-    }).replace(',', '');
-
-    const line = `[${timestamp}] ${message}\n`;
-    fs.appendFileSync(LOG_FILE, line);
-    if (!isError) process.stdout.write(line);
-}
 
 async function fetchTimeSlots() {
     const today = new Date().toISOString().split('T')[0];
@@ -136,7 +119,7 @@ async function bookSlot(slot) {
 
         return true;
     } catch (err) {
-        log(`Booking error for ${slot.date}:`, err.message);
+        console.log(`Booking error for ${slot.date}:`, err.message);
         return false;
     }
 }
@@ -148,16 +131,16 @@ async function bookSlot(slot) {
         const availableDays = findAvailableDays(slots);
 
         if (availableDays.length === 0) {
-            log('No available days found');
+            console.log('No available days found');
             return;
         }
 
         for (const slot of availableDays) {
-            log(`Attempting to book ${slot.date} at ${slot.time}`);
+            console.log(`Attempting to book ${slot.date} at ${slot.time}`);
             const success = await bookSlot(slot);
-            log(`${slot.date} ${slot.time}: ${success ? 'SUCCESS' : 'FAILED'}`);
+            console.log(`${slot.date} ${slot.time}: ${success ? 'SUCCESS' : 'FAILED'}`);
         }
     } catch (err) {
-        log('Fatal error:', err.message);
+        console.log('Fatal error:', err.message);
     }
 })();
