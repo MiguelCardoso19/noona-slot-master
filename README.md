@@ -90,8 +90,10 @@ Details of the customer for whom the appointment is booked:
   - **number** – Phone number without the country code
 
 ## AWS Serverless Architecture
+![AWS Architecture](aws-architecture.png)
 
 I use a simple yet powerful AWS serverless architecture that runs automatically every day, taking full advantage of AWS's free tier offerings:
+
 
 
 ### Architecture Components
