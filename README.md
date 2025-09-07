@@ -9,7 +9,6 @@ NoonaSlotMaster is an automated booking assistant for the Noona platform. It fin
 - [AWS Serverless Architecture](#aws-serverless-architecture)
   - [Architecture Components](#architecture-components)
   - [Why This Architecture?](#why-this-architecture)
-  - [Estimated Monthly Cost](#estimated-monthly-cost)
 
 ## Key Features
 
@@ -124,10 +123,3 @@ I use a simple yet powerful AWS serverless architecture that runs automatically 
 - **Automatically Scalable**: Handles any load without configuration changes (not needed in this case)
 - **Fully Managed**: AWS handles all infrastructure management
 - **Secure**: Built-in security with IAM roles and encryption
-
-### Estimated Monthly Cost
-
-- **EventBridge**: Free (1 events/day × 30 days = 30 events, well under 420 free limit)
-- **Lambda**: Free (1 execution/day × 30 days = 30 executions, well under 1M free requests)
-- **CloudWatch**: Free (minimal log storage required)
-- **Total**: $0.00 (within free tier limits)
