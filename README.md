@@ -100,11 +100,9 @@ I use a simple yet powerful AWS serverless architecture that runs automatically 
 1. **Amazon EventBridge**
    - Serverless scheduler that triggers the function daily at midnight UTC
    - Uses cron expression: `cron(0 0 * * ? *)` (runs at 00:00 UTC every day)
-   - **Cost**: First 14 events per day are free, then $1 per million events
 
 2. **AWS Lambda**
    - Runs the NoonaSlotMaster script in a serverless environment
-   - **Cost**: Free tier includes 1M requests and 400,000 GB-seconds of compute time per month
 
 3. **Noona API**
    - External service that provides availability data and handles bookings
@@ -113,7 +111,6 @@ I use a simple yet powerful AWS serverless architecture that runs automatically 
 4. **Amazon CloudWatch** 
    - Provides logging and monitoring for the Lambda function
    - Tracks execution history, performance metrics, and errors
-   - **Cost**: Free tier includes 5GB of log data ingestion, 5GB of log data archival, and 7 days of log data retention
 
 ### Why This Architecture?
 
